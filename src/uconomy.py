@@ -1,45 +1,37 @@
-from config.bot_config import *
-import pymysql.cursors
 from decimal import Decimal
-from .database import database,UserNotLoginError
+from .user import User
+from .exception import UserNotLoginError
+from config.bot_config import mysql_uconomy_table,mysql_uconomy_shop_item_table,mysql_uconomy_shop_vehice_table
 
-class uconomy(database):
-    def get_user_balance(self,steamid):
-        if self.check_user_login(steamid):
-            self.cursor.execute(f"SELECT * FROM {mysql_uconomy_table} WHERE steamId = {steamid}")
-            return self.cursor.fetchone().get('balance')
+class Uconomy(User):
+    def getUserBalance(self,steamid):
+        if self.checkUserLogin(steamid):
+            return self.executeWithReturn(f"SELECT balance FROM {mysql_uconomy_table} WHERE steamId = {steamid};")
         else:
             raise UserNotLoginError
 
-    def set_user_uconomy(self, steamid, balance):
-        if self.check_user_login(steamid):
-            self.cursor.execute(f"UPDATE {mysql_uconomy_table} SET balance = {Decimal.to_eng_string(balance)} WHERE steamId = '{steamid}';")
-            self.connection.commit()
+    def setUserBalance(self, steamid, balance):
+        if self.checkUserLogin(steamid):
+            self.executeWithCommit(f"UPDATE {mysql_uconomy_table} SET balance = {Decimal.to_eng_string(balance)} WHERE steamId = '{steamid}';")
         else:
             raise UserNotLoginError
 
-class shop(database):
-    def get_shop_item_info(self, itemid):
-        self.cursor.execute(f"SELECT * FROM {mysql_uconomy_shop_item_table} WHERE id = '{itemid}'")
-        return self.cursor.fetchone()
+class Shop(User):
+    def getShopItemInfo(self, itemid):
+        return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_item_table} WHERE id = '{itemid}';")[0]
 
-    def get_shop_vehice_info(self, vehiceid):
-        self.cursor.execute(f"SELECT * FROM {mysql_uconomy_shop_vehice_table} WHERE id = '{vehiceid}'")
-        return self.cursor.fetchone()
+    def getShopVehiceInfo(self, vehiceid):
+        return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_vehice_table} WHERE id = '{vehiceid}';")[0]
 
-    def search_shop_item(self, itemname):
-        self.cursor.execute(f"SELECT * FROM {mysql_uconomy_shop_item_table} WHERE itemname LIKE '%{itemname}%';")
-        return self.cursor.fetchall()
+    def searchShopItem(self, itemname):
+        return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_item_table} WHERE itemname LIKE '%{itemname}%';")
 
-    def search_shop_vehice(self, vehicename):
-        self.cursor.execute(f"SELECT * FROM {mysql_uconomy_shop_vehice_table} WHERE vehiclename LIKE '%{vehicename}%';")
-        return self.cursor.fetchall()
+    def searchShopVehice(self, vehicename):
+        return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_vehice_table} WHERE vehiclename LIKE '%{vehicename}%';")
 
-    def set_shop_item(self, itemid, itemname, cost, buyback):
-        self.cursor.execute(f"UPDATE {mysql_uconomy_shop_item_table} SET itemname='{itemname}',cost='{cost}',buyback='{buyback}' WHERE id={itemid};")
-        self.connection.commit()
+    def setShopItem(self, itemid, itemname, cost, buyback):
+        self.executeWithCommit(f"UPDATE {mysql_uconomy_shop_item_table} SET itemname='{itemname}',cost='{cost}',buyback='{buyback}' WHERE id={itemid};")
 
-    def set_shop_vehice(self, vehiceid, vehicename, cost, buyback):
-        self.cursor.execute(f"UPDATE {mysql_uconomy_shop_vehice_table} SET itemname='{vehicename}',cost='{cost}',buyback='{buyback}' WHERE id={vehiceid};")
-        self.connection.commit()
+    def setShopVehice(self, vehiceid, vehicename, cost, buyback):
+        self.executeWithCommit(f"UPDATE {mysql_uconomy_shop_vehice_table} SET itemname='{vehicename}',cost='{cost}',buyback='{buyback}' WHERE id={vehiceid};")
 

@@ -1,5 +1,3 @@
-import decimal
-from templates.templates_build import templates_build
 from graia.broadcast import Broadcast
 from graia.application import GraiaMiraiApplication, Session
 from graia.application.message.chain import MessageChain
@@ -11,17 +9,22 @@ from graia.scheduler.timers import crontabify
 from graia.application.message.elements.internal import Plain, At
 from graia.application.group import Group, Member
 
-from src.uconomy import database,shop,uconomy
-from config.bot_config import *
-from src.signin import signin
+from src.signin import Signin
 from src.exception import *
-
+from config.bot_config import mirai_account,mirai_authKey,mirai_host,signin_command,regiser_command,regiser_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,info_command,regiser_reward
+from src.user import User
+from src.uconomy import Uconomy
+from src.uconomy import Shop
+from templates.templates import Signin as Signin_template, Userinfo
+from templates.templates import Userinfo as Userinfo_template
 
 loop = asyncio.get_event_loop()
-database = database()
-shop = shop()
-uconomy = uconomy()
-signin = signin()
+user = User()
+shop = Shop()
+uconomy = Uconomy()
+signin = Signin()
+Signin = Signin_template()
+Userinfo = Userinfo_template()
 
 bcc = Broadcast(loop=loop)
 app = GraiaMiraiApplication(
@@ -47,17 +50,17 @@ async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg
         text = msg.get(Plain)[0].text
         try:
             if text == info_command:
-                await FastSender(group,member.id,templates_build('userinfo',steamid=database.get_steamId(member.id)))
+                await FastSender(group,member.id,Userinfo.templatesBuild(steamid=user.getSteamId(member.id)))
             elif text.find(regiser_command) != -1:
                 steamid = text.replace('#注册','').replace(' ','')
                 if steamid.isdigit() and len(steamid) == 17:
-                    database.user_init(qid=member.id,steamid=steamid)
-                    user_balance = uconomy.get_user_balance(steamid)
-                    uconomy.set_user_uconomy(steamid,user_balance + Decimal(regiser_reward))
+                    user.userInit(qid=member.id,steamid=steamid)
+                    user_balance = uconomy.getUserBalance(steamid)
+                    uconomy.setUserBalance(steamid,user_balance + Decimal(regiser_reward))
                     await FastSender(group,member.id,regiser_success_msg)
             elif text == signin_command:
                 signin.signin(member.id)
-                await FastSender(group,member.id,templates_build('signin',qid=member.id))
+                await FastSender(group,member.id,Signin.templatesBuild(qid=member.id))
         except UserNotFoundError:
             await FastSender(group, member.id, user_not_found_msg)
         except UserNotLoginError:
@@ -70,7 +73,7 @@ async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg
 
 @scheduler.schedule(crontabify("0 4 * * * *"))
 def clear_signin_data():
-    signin.clear_today_signin()
+    signin.clearTodaySignin()
 
 loop.run_forever()
 app.launch_blocking()

@@ -1,101 +1,88 @@
 from src.exception import UserAlreadySigninTodayError
-import pymysql.cursors
 import pymysql
-from config.bot_config import *
+from config.bot_config import signin_max_get_balance,signin_min_get_balance,signin_continued_reward,signin_continued_reward_day
 import time
 from decimal import Decimal
 import random
-from .uconomy import uconomy
-from .database import database
+from .uconomy import Uconomy
+from .user import User
 
-uconomy = uconomy()
+uconomy = Uconomy()
 
-class signin(database):
-    def signin_database_init(self):
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS `signin` (`qid` CHAR(12) NOT NULL,`timestamp` DECIMAL(38,6) NOT NULL,`continuedSignin` SMALLINT NOT NULL,`totalSignin` SMALLINT NOT NULL,`todaySignin` TINYINT NOT NULL,`lastReward` DECIMAL(38,2) NOT NULL, PRIMARY KEY ( `qid` )) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
-        self.connection.commit()
+class Signin(User):
+    def signinDatabaseInit(self):
+        self.executeWithCommit("CREATE TABLE IF NOT EXISTS `signin` (`qid` CHAR(12) NOT NULL,`timestamp` DECIMAL(38,6) NOT NULL,`continuedSignin` SMALLINT NOT NULL,`totalSignin` SMALLINT NOT NULL,`todaySignin` TINYINT NOT NULL,`lastReward` DECIMAL(38,2) NOT NULL, PRIMARY KEY ( `qid` )) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 
-    def user_signin_init(self,qid):
-        self.cursor.execute(f"INSERT INTO signin (qid, timestamp, continuedSignin, totalSignin, todaySignin, lastReward) VAlUES ({qid}, {time.time()},0,0,0,0)")
+    def userSigninInit(self,qid):
+        self.executeWithCommit(f"INSERT INTO signin (qid, timestamp, continuedSignin, totalSignin, todaySignin, lastReward) VAlUES ({qid}, {time.time()},0,0,0,0)")
 
-    def clear_today_signin(self):
-        self.cursor.execute("UPDATE signin SET todaySignin=0")
-        self.connection.commit()
+    def clearTodaySignin(self):
+        self.executeWithCommit("UPDATE signin SET todaySignin=0")
 
-    def check_today_signin(self,qid):
-        self.cursor.execute(f"SELECT * FROM signin WHERE qid='{qid}'")
-        if self.cursor.fetchone().get('todaySignin') == 1:
+    def checkTodaySignin(self,qid):
+        if self.executeWithReturn(f"SELECT todaySignin FROM signin WHERE qid='{qid}'")[0] == 1:
             return True
         else:
             return False
 
-    def check_user_signin(self,qid):
-        if self.cursor.execute(f"SELECT * FROM signin WHERE qid='{qid}'") != 0:
+    def checkUserSignin(self,qid):
+        if self.executeWithCount(f"SELECT * FROM signin WHERE qid='{qid}'") != 0:
             return True
         else:
             return False
 
-    def check_continued_signin(self,qid):
-        self.cursor.execute(f"SELECT * FROM signin WHERE qid='{qid}'")
-        time_difference = time.time() - self.cursor.fetchone().get('timestamp') 
+    def checkContinuedSignin(self,qid):
+        time_difference = time.time() - self.executeWithReturn(f"SELECT timestamp FROM signin WHERE qid='{qid}'") 
         if time_difference < Decimal(172800):
             return True
         else:
             return False
 
-    def get_continued_signin(self, qid):
-        self.cursor.execute(f"SELECT * FROM signin WHERE qid='{qid}'")
-        return self.cursor.fetchone().get('continuedSignin')
+    def getContinuedSignin(self, qid):
+        return self.executeWithReturn(f"SELECT continuedSignin FROM signin WHERE qid='{qid}'")[0]
 
-    def get_total_signin(self, qid):
-        self.cursor.execute(f"SELECT * FROM signin WHERE qid='{qid}'")
-        return self.cursor.fetchone().get('totalSignin')
+    def getTotalSignin(self, qid):
+        self.executeWithReturn(f"SELECT totalSignin FROM signin WHERE qid='{qid}'")[0]
 
-    def get_last_signin_timestamp(self, qid):
-        self.cursor.execute(f"SELECT * FROM signin WHERE qid='{qid}'")
-        return self.cursor.fetchone().get('timestamp')
+    def getLastSigninTimestamp(self, qid):
+        self.executeWithReturn(f"SELECT timestamp FROM signin WHERE qid='{qid}'")[0]
 
-    def add_total_signin(self,qid):
+    def addTotalSignin(self,qid):
         '''
         +1
         '''
-        self.cursor.execute(f"UPDATE signin SET totalSignin={self.get_total_signin(qid)+1}")
-        self.connection.commit()
+        self.executeWithCommit(f"UPDATE signin SET totalSignin={self.getTotalSignin(qid)+1}")
 
-    def set_continued_signin(self,qid):
+    def setContinuedSignin(self,qid):
         '''
         自动检查是否连续签到
         '''
-        if self.check_continued_signin(qid):
-            self.cursor.execute(f"UPDATE signin SET continuedSignin={self.get_continued_signin(qid)+1}")
+        if self.checkContinuedSignin(qid):
+            self.executeWithCommit(f"UPDATE signin SET continuedSignin={self.getContinuedSignin(qid)+1}")
         else:
-            self.cursor.execute(f"UPDATE signin SET continuedSignin=1")
-        self.connection.commit()
+            self.executeWithCommit(f"UPDATE signin SET continuedSignin=1")
 
-    def set_last_reward(self,qid,reward):
-        self.cursor.execute(f"UPDATE signin SET lastReward={reward} WHERE qid = '{qid}'")
-        self.connection.commit()
+    def setLastReward(self,qid,reward):
+        self.executeWithCommit(f"UPDATE signin SET lastReward={reward} WHERE qid = '{qid}'")
 
-    def set_signin_info(self,qid):
-        self.cursor.execute(f"UPDATE signin SET timestamp={time.time()},todaySignin=1 WHERE qid = '{qid}'")
-        self.connection.commit()
+    def setSigninInfo(self,qid):
+        self.executeWithCommit(f"UPDATE signin SET timestamp={time.time()},todaySignin=1 WHERE qid = '{qid}'")
 
-    def get_lastReward(self,qid):
-        self.cursor.execute(f"SELECT * FROM signin WHERE qid = '{qid}'")
-        return self.cursor.fetchone().get('lastReward')
+    def getLastReward(self,qid):
+        return self.executeWithReturn(f"SELECT lastReward FROM signin WHERE qid = '{qid}'")[0]
 
     def signin(self,qid):
-        if not self.check_user_signin(qid):
-            self.user_signin_init(qid) #检测初次签到
-        if not self.check_today_signin(qid):
+        if not self.checkUserSignin(qid):
+            self.userSigninInit(qid) #检测初次签到
+        if not self.checkTodaySignin(qid):
             reward = random.randint(signin_min_get_balance,signin_max_get_balance) #获取基本奖励金
-            uconomy.set_user_uconomy(self.get_steamId(qid),uconomy.get_user_balance(self.get_steamId(qid))+Decimal(reward)) #打钱
-            if self.get_continued_signin(qid)%signin_continued_reward_day == 0 and self.get_continued_signin(qid) != 0: #连续签到x日特别打钱
-                uconomy.set_user_uconomy(self.get_steamId(qid),uconomy.get_user_balance(self.get_steamId(qid))+Decimal(signin_continued_reward)) #打钱
-                self.set_last_reward(qid,reward+signin_continued_reward) #记录上次打钱
+            uconomy.setUserBalance(self.getSteamId(qid),uconomy.getUserBalance(self.getSteamId(qid))+Decimal(reward)) #打钱
+            if self.getContinuedSignin(qid)%signin_continued_reward_day == 0 and self.getContinuedSignin(qid) != 0: #连续签到x日特别打钱
+                uconomy.setUserBalance(self.getSteamId(qid),uconomy.getUserBalance(self.getSteamId(qid))+Decimal(signin_continued_reward)) #打钱
+                self.setLastReward(qid,reward+signin_continued_reward) #记录上次打钱
             else:
-                self.set_last_reward(qid,reward) #同上
-            self.add_total_signin(qid)
-            self.set_signin_info(qid)
+                self.setLastReward(qid,reward) #同上
+            self.addTotalSignin(qid)
+            self.setSigninInfo(qid)
         else:
             raise UserAlreadySigninTodayError
