@@ -1,15 +1,19 @@
-from .uconomy import Uconomy
+from templates.templates import ItemSearch
+from .uconomy import Shop, Uconomy
 from .user import User
 from decimal import Decimal
-from config.bot_config import regiser_reward
+from config.bot_config import regiser_reward,regiser_command,search_item_command
 from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllggalCommandFormatError
 from graia.application.message.elements.internal import At,Plain
+from graia.application.message.chain import MessageChain
 
 uconomy = Uconomy()
 user = User()
+shop = Shop()
+ItemSearch = ItemSearch()
 
-def regiser(text,qid):
-    steamid = text.replace('#注册','').replace(' ','')
+def regiser(text: str,qid: str):
+    steamid = text.replace(regiser_command,'').replace(' ','')
     if steamid.isdigit() and len(steamid) == 17:
         user.userInit(qid=qid,steamid=steamid)
         user_balance = uconomy.getUserBalance(steamid)
@@ -17,7 +21,7 @@ def regiser(text,qid):
     else:
         raise IllegalSteamIdError
 
-def transfer(msgchain,qid):
+def transfer(msgchain: MessageChain,qid: str):
     try:
         other_side_steamid = user.getSteamId(msgchain.get(At)[0].target)
         main_side_steamid = user.getSteamId(qid)
@@ -29,3 +33,7 @@ def transfer(msgchain,qid):
             raise BalanceNotEnoughError
     except IndexError:
         raise IllggalCommandFormatError
+
+def item_search(text: str):
+    itemname = text.replace(search_item_command,'').replace(' ','')
+    return ItemSearch.templatesBuild(shop.searchShopItem(itemname))

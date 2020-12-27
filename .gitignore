@@ -130,3 +130,4 @@ dmypy.json
 .pyre/
 .botinit
 config/bot_config.py
+test.py

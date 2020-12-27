@@ -12,15 +12,15 @@ from graia.application.group import Group, Member
 from src.signin import Signin
 from src.exception import *
 from config.bot_config import mirai_account,mirai_authKey,mirai_host
-from config.bot_config import transfer_command,signin_command,regiser_command,info_command
-from config.bot_config import illegal_steamid_msg,regiser_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,illegal_command_format_msg,balance_not_enough_msg,transfer_success_msg
+from config.bot_config import transfer_command,signin_command,regiser_command,info_command,search_item_command,search_vehice_command
+from config.bot_config import illegal_steamid_msg,regiser_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,illegal_command_format_msg,balance_not_enough_msg,transfer_success_msg,item_not_found_msg
 from config.bot_config import signin_clear_time
 from src.user import User
 from src.uconomy import Uconomy
 from src.uconomy import Shop
 from templates.templates import Signin as Signin_template
 from templates.templates import Userinfo as Userinfo_template
-from src.utils import regiser,transfer
+from src.utils import item_search, regiser,transfer
 
 loop = asyncio.get_event_loop()
 user = User()
@@ -62,18 +62,21 @@ async def FastSender(group, qid, text):
 async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg:MessageChain):
     if msg.has(Plain):
         text = msg.get(Plain)[0].text
+        qid = str(member.id)
         try:
             if text == info_command:
-                await FastSender(group,member.id,Userinfo.templatesBuild(steamid=user.getSteamId(member.id)))
+                await FastSender(group,qid,Userinfo.templatesBuild(steamid=user.getSteamId(member.id)))
             elif text.find(regiser_command) != -1:
-                regiser(text,member.id)
-                await FastSender(group, member.id, regiser_success_msg)
+                regiser(text,qid)
+                await FastSender(group, qid, regiser_success_msg)
             elif text == signin_command:
-                signin.signin(member.id)
-                await FastSender(group,member.id,Signin.templatesBuild(qid=member.id))
+                signin.signin(qid)
+                await FastSender(group,qid,Signin.templatesBuild(qid=member.id))
             elif text.find(transfer_command) != -1:
                 transfer(msg,member.id)
-                await FastSender(group,member.id,transfer_success_msg)
+                await FastSender(group,qid,transfer_success_msg)
+            elif text.find(search_item_command):
+                await FastSender(group,qid,item_search(text))
         except UserNotFoundError:
             await FastSender(group, member.id, user_not_found_msg)
         except UserNotLoginError:
@@ -88,6 +91,8 @@ async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg
             await FastSender(group,member.id,illegal_command_format_msg)
         except BalanceNotEnoughError:
             await FastSender(group,member.id,balance_not_enough_msg)
+        except ItemNotFoundError:
+            await FastSender(group, member.id, item_not_found_msg)
 
 @scheduler.schedule(crontabify(signin_clear_time))
 def clear_signin_data():

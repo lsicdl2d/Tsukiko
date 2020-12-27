@@ -19,3 +19,9 @@ class BalanceNotEnoughError(Exception):
 
 class IllggalCommandFormatError(Exception):
     pass
+
+class ItemNotFoundError(Exception):
+    pass
+
+class VehicleNotFoundError(Exception):
+    pass
