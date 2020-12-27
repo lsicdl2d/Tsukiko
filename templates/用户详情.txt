@@ -1,4 +1,0 @@
-您的游戏名：!GAMENAME
-您的STEAMID：!STEAMID
-您的余额：!BALANCE
-您的积分：!RANK
