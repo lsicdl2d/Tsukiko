@@ -1,0 +1,4 @@
+graia-application
+graia-broadcast
+graia-scheduler
+pymysql
