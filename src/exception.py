@@ -1,7 +1,6 @@
 class UserNotFoundError(Exception):
     pass
 
-
 class UserAlreadyHaveError(Exception):
     pass
 
@@ -24,4 +23,7 @@ class ItemNotFoundError(Exception):
     pass
 
 class VehicleNotFoundError(Exception):
+    pass
+
+class ValueIsNegativeError(Exception):
     pass
