@@ -6,6 +6,9 @@ from config.bot_config import regiser_reward,regiser_command,search_item_command
 from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllggalCommandFormatError,ValueIsNegativeError
 from graia.application.message.elements.internal import At,Plain
 from graia.application.message.chain import MessageChain
+from PIL import Image,ImageFont,ImageDraw
+import os
+from PIL import Image,ImageFont,ImageDraw
 
 uconomy = Uconomy()
 user = User()

@@ -16,11 +16,13 @@ from config.bot_config import transfer_command,signin_command,regiser_command,in
 from config.bot_config import illegal_steamid_msg,regiser_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,illegal_command_format_msg,balance_not_enough_msg,transfer_success_msg,item_not_found_msg
 from config.bot_config import signin_clear_time
 from src.user import User
+from plugins.plugin import Plugin
 from src.uconomy import Uconomy
 from src.uconomy import Shop
 from templates.templates import Signin as Signin_template
 from templates.templates import Userinfo as Userinfo_template
 from src.utils import item_search, regiser,transfer
+from plugins.plugin import Plugin
 
 loop = asyncio.get_event_loop()
 user = User()
@@ -29,6 +31,7 @@ uconomy = Uconomy()
 signin = Signin()
 Signin = Signin_template()
 Userinfo = Userinfo_template()
+plugin = Plugin()
 
 bcc = Broadcast(loop=loop)
 app = GraiaMiraiApplication(
@@ -43,6 +46,7 @@ app = GraiaMiraiApplication(
 scheduler = GraiaScheduler(
     loop, bcc
 )
+plugin.loadPlugins()
 
 def check_init():
     try:
@@ -61,22 +65,24 @@ async def FastSender(group, qid, text):
 @bcc.receiver("GroupMessage")
 async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg:MessageChain):
     if msg.has(Plain):
-        text = msg.get(Plain)[0].text
+        text = str(msg.get(Plain)[0].text)
         qid = str(member.id)
         try:
             if text == info_command:
                 await FastSender(group,qid,Userinfo.templatesBuild(steamid=user.getSteamId(member.id)))
-            elif text.find(regiser_command) != -1:
+            elif text.startswith(regiser_command):
                 regiser(text,qid)
                 await FastSender(group, qid, regiser_success_msg)
             elif text == signin_command:
                 signin.signin(qid)
                 await FastSender(group,qid,Signin.templatesBuild(qid=member.id))
-            elif text.find(transfer_command) != -1:
+            elif text.startswith(transfer_command):
                 transfer(msg,member.id)
                 await FastSender(group,qid,transfer_success_msg)
-            elif text.find(search_item_command):
+            elif text.startswith(search_item_command):
                 await FastSender(group,qid,item_search(text))
+            else:
+                plugin.runPlugin(app=app,group=group,member=member,msgChain=msg)
         except UserNotFoundError:
             await FastSender(group, member.id, user_not_found_msg)
         except UserNotLoginError:
