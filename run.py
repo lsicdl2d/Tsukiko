@@ -13,7 +13,7 @@ from src.signin import Signin
 from src.exception import *
 from config.bot_config import mirai_account,mirai_authKey,mirai_host
 from config.bot_config import transfer_command,signin_command,register_command,info_command,search_item_command,search_vehicle_command
-from config.bot_config import illegal_steamid_msg,register_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,illegal_command_format_msg,balance_not_enough_msg,transfer_success_msg,item_not_found_msg
+from config.bot_config import illegal_steamid_msg, register_success_msg, user_already_have_msg, user_already_signin_msg, user_not_found_msg, user_not_login_msg, illegal_command_format_msg, balance_not_enough_msg, transfer_success_msg, item_not_found_msg, vehicle_not_found_msg, value_is_negative_msg
 from config.bot_config import signin_clear_time
 from src.user import User
 from plugins.plugin import Plugin
@@ -101,6 +101,10 @@ async def MessageHandler(app: GraiaMiraiApplication,group:Group,member:Member,ms
             await FastSender(group,member.id,balance_not_enough_msg)
         except ItemNotFoundError:
             await FastSender(group, member.id, item_not_found_msg)
+        except VehicleNotFoundError:
+            await FastSender(group, member.id, vehicle_not_found_msg)
+        except ValueIsNegativeError:
+            await FastSender(group, member.id, value_is_negative_msg)
 
 @scheduler.schedule(crontabify(signin_clear_time))
 def clear_signin_data():
