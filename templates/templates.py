@@ -46,14 +46,16 @@ class ItemSearch(Template):
         new_template = ''
         for i in template_list:
             if i.startswith('$'):
-                i = i.replace('$','')
-                for l in range(len(itemsearchresult)):
-                    for j,k in [
-                        ('!ID',itemsearchresult[l]['id']),
-                        ('!ITEMNAME',itemsearchresult[l]['itemname']),
-                        ('!COST',itemsearchresult[l]['cost']),
-                        ('!BUYBACK',itemsearchresult[l]['buyback'])
-                    ]:
-                        i = i.replace(j,k)
-            new_template = new_template+i+'\n'
-        return new_template
+                loop_line = i.replace('$','')
+                template = template.replace(i,'$WAITFORREPLACE')
+        for l in range(len(itemsearchresult)):
+            replaced_line = loop_line
+            for j,k in [
+                ('!ID',itemsearchresult[l]['id']),
+                ('!ITEMNAME',itemsearchresult[l]['itemname']),
+                ('!COST',itemsearchresult[l]['cost']),
+                ('!BUYBACK',itemsearchresult[l]['buyback'])
+            ]:
+                replaced_line = replaced_line.replace(j,k)
+            new_template = new_template+replaced_line+'\n'
+        return template.replace('$WAITFORREPLACE', new_template)
