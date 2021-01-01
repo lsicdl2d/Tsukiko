@@ -16,7 +16,7 @@ class IllegalSteamIdError(Exception):
 class BalanceNotEnoughError(Exception):
     pass
 
-class IllggalCommandFormatError(Exception):
+class IllegalCommandFormatError(Exception):
     pass
 
 class ItemNotFoundError(Exception):

@@ -58,4 +58,28 @@ class ItemSearch(Template):
             ]:
                 replaced_line = replaced_line.replace(j,k)
             new_template = new_template+replaced_line+'\n'
+        return template.replace('$WAITFORREPLACE',new_template)
+
+class VehicleSearch(Template):
+    def templatesBuild(self, vehiclesearchresult: list) -> str:
+        template = open('./templates/载具搜索.txt', 'r').read()
+        template_list = template.splitlines()
+        for i in template_list:
+            if i.startswith('$'):
+                template.replace(i, f"{i}'\n'"*len(vehiclesearchresult))
+        template_list = template.splitlines()
+        new_template = ''
+        for i in template_list:
+            if i.startswith('$'):
+                loop_line = i.replace('$', '')
+                template = template.replace(i, '$WAITFORREPLACE')
+        for l in range(len(vehiclesearchresult)):
+            replaced_line = loop_line
+            for j, k in [
+                ('!ID', vehiclesearchresult[l]['id']),
+                ('!VEHICLENAME', vehiclesearchresult[l]['vehiclename']),
+                ('!COST', vehiclesearchresult[l]['cost']),
+            ]:
+                replaced_line = replaced_line.replace(j, k)
+            new_template = new_template+replaced_line+'\n'
         return template.replace('$WAITFORREPLACE', new_template)

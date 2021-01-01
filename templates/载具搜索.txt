@@ -1,0 +1,3 @@
+您搜索的结果如下：
+ID|载具名|购入价格
+$!ID|!VEHICLENAME|!COST

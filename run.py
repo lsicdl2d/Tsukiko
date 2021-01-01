@@ -12,8 +12,8 @@ from graia.application.group import Group, Member
 from src.signin import Signin
 from src.exception import *
 from config.bot_config import mirai_account,mirai_authKey,mirai_host
-from config.bot_config import transfer_command,signin_command,regiser_command,info_command,search_item_command,search_vehice_command
-from config.bot_config import illegal_steamid_msg,regiser_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,illegal_command_format_msg,balance_not_enough_msg,transfer_success_msg,item_not_found_msg
+from config.bot_config import transfer_command,signin_command,register_command,info_command,search_item_command,search_vehicle_command
+from config.bot_config import illegal_steamid_msg,register_success_msg,user_already_have_msg,user_already_signin_msg,user_not_found_msg,user_not_login_msg,illegal_command_format_msg,balance_not_enough_msg,transfer_success_msg,item_not_found_msg
 from config.bot_config import signin_clear_time
 from src.user import User
 from plugins.plugin import Plugin
@@ -21,7 +21,7 @@ from src.uconomy import Uconomy
 from src.uconomy import Shop
 from templates.templates import Signin as Signin_template
 from templates.templates import Userinfo as Userinfo_template
-from src.utils import item_search, regiser,transfer
+from src.utils import item_search, register,transfer, vehicle_search
 from plugins.plugin import Plugin
 
 loop = asyncio.get_event_loop()
@@ -63,16 +63,16 @@ async def FastSender(group, qid, text):
     await app.sendGroupMessage(group, MessageChain.create([At(target=qid), Plain(text=text)]))
 
 @bcc.receiver("GroupMessage")
-async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg:MessageChain):
+async def MessageHandler(app: GraiaMiraiApplication,group:Group,member:Member,msg:MessageChain):
     if msg.has(Plain):
         text = str(msg.get(Plain)[0].text)
         qid = str(member.id)
         try:
             if text == info_command:
                 await FastSender(group,qid,Userinfo.templatesBuild(steamid=user.getSteamId(member.id)))
-            elif text.startswith(regiser_command):
-                regiser(text,qid)
-                await FastSender(group, qid, regiser_success_msg)
+            elif text.startswith(register_command):
+                register(text,qid)
+                await FastSender(group, qid, register_success_msg)
             elif text == signin_command:
                 signin.signin(qid)
                 await FastSender(group,qid,Signin.templatesBuild(qid=member.id))
@@ -81,6 +81,8 @@ async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg
                 await FastSender(group,qid,transfer_success_msg)
             elif text.startswith(search_item_command):
                 await FastSender(group,qid,item_search(text))
+            elif text.startswith(search_vehicle_command):
+                await FastSender(group,qid,vehicle_search(text))
             else:
                 plugin.runPlugin(app=app,group=group,member=member,msgChain=msg)
         except UserNotFoundError:
@@ -93,7 +95,7 @@ async def MessageHanler(app: GraiaMiraiApplication,group:Group,member:Member,msg
             await FastSender(group,member.id,user_already_signin_msg)
         except IllegalSteamIdError:
             await FastSender(group, member.id, illegal_steamid_msg)
-        except IllggalCommandFormatError:
+        except IllegalCommandFormatError:
             await FastSender(group,member.id,illegal_command_format_msg)
         except BalanceNotEnoughError:
             await FastSender(group,member.id,balance_not_enough_msg)

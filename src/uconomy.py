@@ -1,7 +1,7 @@
 from decimal import Decimal
 from .user import User
 from .exception import ItemNotFoundError, UserNotLoginError, VehicleNotFoundError
-from config.bot_config import mysql_uconomy_table,mysql_uconomy_shop_item_table,mysql_uconomy_shop_vehice_table
+from config.bot_config import mysql_uconomy_table,mysql_uconomy_shop_item_table,mysql_uconomy_shop_vehicle_table
 
 class Uconomy(User):
     def getUserBalance(self,steamid: str) -> Decimal:
@@ -20,8 +20,8 @@ class Shop(User):
     def getShopItemInfo(self, itemid: str) -> dict:
         return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_item_table} WHERE id = '{itemid}';")[0]
 
-    def getShopVehiceInfo(self, vehiceid: str) -> dict:
-        return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_vehice_table} WHERE id = '{vehiceid}';")[0]
+    def getShopVehicleInfo(self, vehicleid: str) -> dict:
+        return self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_vehicle_table} WHERE id = '{vehicleid}';")[0]
 
     def searchShopItem(self, itemname: str) -> list:
         search_result = self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_item_table} WHERE itemname LIKE '%{itemname}%';")
@@ -30,8 +30,8 @@ class Shop(User):
         else:
             raise ItemNotFoundError
 
-    def searchShopVehice(self, vehicename: str) -> list:
-        search_result = self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_vehice_table} WHERE vehiclename LIKE '%{vehicename}%';")
+    def searchShopVehicle(self, vehiclename: str) -> list:
+        search_result = self.executeWithReturn(f"SELECT * FROM {mysql_uconomy_shop_vehicle_table} WHERE vehiclename LIKE '%{vehiclename}%';")
         if bool(search_result) :
             return search_result
         else:
@@ -40,6 +40,6 @@ class Shop(User):
     def setShopItem(self, itemid: str, itemname: str, cost: str, buyback: str):
         self.executeWithCommit(f"UPDATE {mysql_uconomy_shop_item_table} SET itemname='{itemname}',cost='{cost}',buyback='{buyback}' WHERE id={itemid};")
 
-    def setShopVehice(self, vehiceid: str, vehicename: str, cost: str, buyback: str):
-        self.executeWithCommit(f"UPDATE {mysql_uconomy_shop_vehice_table} SET itemname='{vehicename}',cost='{cost}',buyback='{buyback}' WHERE id={vehiceid};")
+    def setShopVehicle(self, vehicleid: str, vehiclename: str, cost: str, buyback: str):
+        self.executeWithCommit(f"UPDATE {mysql_uconomy_shop_vehicle_table} SET itemname='{vehiclename}',cost='{cost}',buyback='{buyback}' WHERE id={vehicleid};")
 
