@@ -41,6 +41,17 @@ def transfer(msgchain: MessageChain,qid: str):
     except IndexError:
         raise IllegalCommandFormatError
 
+def recharge(msgchain: MessageChain,qid: str):
+    try:
+        if user.checkUserPermission(qid,1):
+            other_side_steamid = user.getSteamId(msgchain.get(At)[0].target)
+            recharge_balance = Decimal(int(msgchain.get(Plain)[1].text))
+            uconomy.setUserBalance(other_side_steamid,uconomy.getUserBalance(other_side_steamid)+recharge_balance)
+        else:
+            raise PermissionError
+    except IndexError:
+        raise IllegalCommandFormatError
+
 def item_search(text: str):
     itemname = text.replace(search_item_command,'').replace(' ','')
     return ItemSearch.templatesBuild(shop.searchShopItem(itemname))

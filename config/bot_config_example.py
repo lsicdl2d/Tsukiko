@@ -17,7 +17,7 @@ signin_clear_time = "0 4 * * * *"
 #用户注册设置
 register_reward = 3000
 #Mirai设置
-mirai_host = 'http://120.79.196.188:8080'
+mirai_host = 'http://127.0.0.1:8080'
 mirai_authKey = '1234567890'
 mirai_account = 1234567890
 #命令设置
@@ -27,6 +27,7 @@ signin_command = '#签到'
 transfer_command = '#转账'
 search_item_command = '#物品搜索'
 search_vehicle_command = '#载具搜索'
+recharge_command = '#充值'
 #消息设置
 user_already_have_msg = '您已注册！'
 user_not_login_msg = '此用户未进入过游戏！'
@@ -40,3 +41,5 @@ transfer_success_msg = '转账成功！'
 item_not_found_msg = '未找到此物品！'
 vehicle_not_found_msg = '未找到此载具！'
 value_is_negative_msg = '参数不能为0！'
+permission_not_enough_msg = '权限不足！'
+recharge_success_msg = '充值成功！'

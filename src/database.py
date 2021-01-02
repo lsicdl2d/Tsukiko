@@ -7,11 +7,18 @@ class Database(object):
         self.cursor = self.connection.cursor()
 
     def executeWithReturn(self,command):
+        self.reconnect()
         self.cursor.execute(command)
         return self.cursor.fetchall()
 
     def executeWithCommit(self,command):
+        self.reconnect()
         self.cursor.execute(command)
 
     def executeWithCount(self,command):
+        self.reconnect()
         return self.cursor.execute(command)
+
+    def reconnect(self):
+        self.connection.ping(reconnect=True)
+        self.executeWithCommit('sql')
