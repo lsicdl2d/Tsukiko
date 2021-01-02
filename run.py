@@ -87,7 +87,7 @@ async def MessageHandler(app: GraiaMiraiApplication,group:Group,member:Member,ms
                 recharge(msg,qid)
                 await FastSender(group,qid,recharge_success_msg)
             else:
-                plugin.runPlugin(app=app,group=group,member=member,msgChain=msg)
+                await plugin.runPlugin(app=app,group=group,member=member,msgChain=msg)
         except UserNotFoundError:
             await FastSender(group, member.id, user_not_found_msg)
         except UserNotLoginError:
