@@ -21,4 +21,3 @@ class Database(object):
 
     def reconnect(self):
         self.connection.ping(reconnect=True)
-        self.executeWithCommit('sql')

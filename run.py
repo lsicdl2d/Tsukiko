@@ -12,7 +12,7 @@ from graia.application.group import Group, Member
 from src.signin import Signin
 from src.exception import *
 from config.bot_config import mirai_account,mirai_authKey,mirai_host
-from config.bot_config import transfer_command,signin_command,register_command,info_command,search_item_command,search_vehicle_command,recharge_command
+from config.bot_config import transfer_command, signin_command, register_command, info_command, search_item_command, search_vehicle_command, recharge_command, get_shop_item_info_command, get_shop_vehicle_info_command
 from config.bot_config import permission_not_enough_msg, illegal_steamid_msg, register_success_msg, user_already_have_msg, user_already_signin_msg, user_not_found_msg, user_not_login_msg, illegal_command_format_msg, balance_not_enough_msg, transfer_success_msg, item_not_found_msg, vehicle_not_found_msg, value_is_negative_msg, recharge_success_msg
 from config.bot_config import signin_clear_time
 from src.user import User
@@ -21,7 +21,7 @@ from src.uconomy import Uconomy
 from src.uconomy import Shop
 from templates.templates import Signin as Signin_template
 from templates.templates import Userinfo as Userinfo_template
-from src.utils import item_search, recharge, register,transfer, vehicle_search
+from src.utils import item_search, recharge, register,transfer,vehicle_search, shop_item_get,shop_vehicle_get
 from plugins.plugin import Plugin
 
 loop = asyncio.get_event_loop()
@@ -86,6 +86,10 @@ async def MessageHandler(app: GraiaMiraiApplication,group:Group,member:Member,ms
             elif text.startswith(recharge_command):
                 recharge(msg,qid)
                 await FastSender(group,qid,recharge_success_msg)
+            elif text.startswith(get_shop_item_info_command):
+                await FastSender(group,qid,shop_item_get(text))
+            elif text.startswith(get_shop_vehicle_info_command):
+                await FastSender(group,qid,shop_vehicle_get(text))
             else:
                 await plugin.runPlugin(app=app,group=group,member=member,msgChain=msg)
         except UserNotFoundError:

@@ -2,7 +2,7 @@ from templates.templates import ItemSearch, VehicleSearch
 from .uconomy import Shop, Uconomy
 from .user import User
 from decimal import Decimal
-from config.bot_config import register_reward, register_command, search_item_command, search_vehicle_command
+from config.bot_config import register_reward, register_command, search_item_command, search_vehicle_command, get_shop_item_info_command,get_shop_vehicle_info_command,item_not_found_msg,vehicle_not_found_msg
 from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllegalCommandFormatError,ValueIsNegativeError
 from graia.application.message.elements.internal import At,Plain
 from graia.application.message.chain import MessageChain
@@ -52,10 +52,23 @@ def recharge(msgchain: MessageChain,qid: str):
     except IndexError:
         raise IllegalCommandFormatError
 
-def item_search(text: str):
+def item_search(text: str)-> str:
     itemname = text.replace(search_item_command,'').replace(' ','')
     return ItemSearch.templatesBuild(shop.searchShopItem(itemname))
 
-def vehicle_search(text: str):
+def vehicle_search(text: str) -> str:
     vehiclename = text.replace(search_vehicle_command, '').replace(' ', '')
     return VehicleSearch.templatesBuild(shop.searchShopVehicle(vehiclename))
+
+def shop_item_get(text: str)-> str:
+    try:
+        return ItemSearch.templatesBuild([shop.getShopItemInfo(text.replace(get_shop_item_info_command,'').replace(' ',''))])
+    except IndexError:
+        return item_not_found_msg
+
+def shop_vehicle_get(text: set)-> str:
+    try:
+        return VehicleSearch.templatesBuild([shop.getShopVehicleInfo(text.replace(get_shop_vehicle_info_command, '').replace(' ', ''))])
+    except IndexError:
+        return vehicle_not_found_msg
+

@@ -28,6 +28,8 @@ transfer_command = '#转账'
 search_item_command = '#物品搜索'
 search_vehicle_command = '#载具搜索'
 recharge_command = '#充值'
+get_shop_item_info_command = '#物品查询'
+get_shop_vehicle_info_command = '#载具查询'
 #消息设置
 user_already_have_msg = '您已注册！'
 user_not_login_msg = '此用户未进入过游戏！'
