@@ -2,8 +2,11 @@ from templates.templates import ItemSearch, VehicleSearch
 from .uconomy import Shop, Uconomy
 from .user import User
 from decimal import Decimal
-from config.bot_config import register_reward, register_command, search_item_command, search_vehicle_command, get_shop_item_info_command,get_shop_vehicle_info_command,item_not_found_msg,vehicle_not_found_msg
-from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllegalCommandFormatError,ValueIsNegativeError
+from config.bot_config import (register_reward, register_command, search_item_command, 
+                                search_vehicle_command, get_shop_item_info_command,get_shop_vehicle_info_command,
+                                item_not_found_msg,vehicle_not_found_msg,set_shop_item_info_command,
+                                set_shop_vehicle_info_command, parameter_separator)
+from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllegalCommandFormatError, ItemNotFoundError,ValueIsNegativeError, VehicleNotFoundError
 from graia.application.message.elements.internal import At,Plain
 from graia.application.message.chain import MessageChain
 from PIL import Image,ImageFont,ImageDraw
@@ -64,11 +67,24 @@ def shop_item_get(text: str)-> str:
     try:
         return ItemSearch.templatesBuild([shop.getShopItemInfo(text.replace(get_shop_item_info_command,'').replace(' ',''))])
     except IndexError:
-        return item_not_found_msg
+        raise ItemNotFoundError
 
-def shop_vehicle_get(text: set)-> str:
+def shop_vehicle_get(text: str)-> str:
     try:
         return VehicleSearch.templatesBuild([shop.getShopVehicleInfo(text.replace(get_shop_vehicle_info_command, '').replace(' ', ''))])
     except IndexError:
-        return vehicle_not_found_msg
+        raise VehicleNotFoundError
 
+def shop_item_set(text: str,qid: str):
+    if user.checkUserPermission(qid,1):
+        arg = text.replace(set_shop_item_info_command,'').replace(' ','').split(parameter_separator)
+        shop.setShopItem(itemid=arg[0],itemname=arg[1],cost=arg[2],buyback=arg[3])
+    else:
+        raise PermissionError
+
+def shop_vehicle_set(text: str,qid: str):
+    if user.checkUserPermission(qid,1):
+        arg = text.replace(set_shop_vehicle_info_command,'').replace(' ','').split(parameter_separator)
+        shop.setShopVehicle(vehicleid=arg[0],vehiclename=arg[1],cost=arg[2],buyback=arg[3])
+    else:
+        raise PermissionError
