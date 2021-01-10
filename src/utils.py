@@ -5,7 +5,7 @@ from decimal import Decimal
 from config.bot_config import (register_reward, register_command, search_item_command, 
                                 search_vehicle_command, get_shop_item_info_command,get_shop_vehicle_info_command,
                                 item_not_found_msg,vehicle_not_found_msg,set_shop_item_info_command,
-                                set_shop_vehicle_info_command, parameter_separator)
+                                set_shop_vehicle_info_command, parameter_separator, admin_qq)
 from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllegalCommandFormatError, ItemNotFoundError,ValueIsNegativeError, VehicleNotFoundError
 from graia.application.message.elements.internal import At,Plain
 from graia.application.message.chain import MessageChain
@@ -19,6 +19,8 @@ VehicleSearch = VehicleSearch()
 def register(text: str,qid: str):
     steamid = text.replace(register_command,'').replace(' ','')
     if steamid.isdigit() and len(steamid) == 17:
+        if str(admin_qq) == qid:
+            user.setUserPermission(qid, 2)
         user.userInit(qid=qid,steamid=steamid)
         user_balance = uconomy.getUserBalance(steamid)
         uconomy.setUserBalance(steamid,user_balance + Decimal(register_reward))
