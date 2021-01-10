@@ -6,7 +6,11 @@ from config.bot_config import mysql_uconomy_table,mysql_uconomy_shop_item_table,
 class Uconomy(User):
     def getUserBalance(self,steamid: str) -> Decimal:
         if self.checkUserLogin(steamid):
-            return self.executeWithReturn(f"SELECT balance FROM {mysql_uconomy_table} WHERE steamId = {steamid};")[0]['balance']
+            balance = self.executeWithReturn(f"SELECT balance FROM {mysql_uconomy_table} WHERE steamId = {steamid};")[0]['balance']
+            if type(balance)  == Decimal:
+                return balance
+            else:
+                return Decimal(int(balance))
         else:
             raise UserNotLoginError
 

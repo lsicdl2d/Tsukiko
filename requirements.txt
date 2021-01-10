@@ -1,4 +1,4 @@
-graia-application
+graia-application-mirai
 graia-broadcast
 graia-scheduler
 pymysql

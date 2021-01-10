@@ -9,9 +9,6 @@ from config.bot_config import (register_reward, register_command, search_item_co
 from .exception import IllegalSteamIdError,BalanceNotEnoughError,IllegalCommandFormatError, ItemNotFoundError,ValueIsNegativeError, VehicleNotFoundError
 from graia.application.message.elements.internal import At,Plain
 from graia.application.message.chain import MessageChain
-from PIL import Image,ImageFont,ImageDraw
-import os
-from PIL import Image,ImageFont,ImageDraw
 
 uconomy = Uconomy()
 user = User()
@@ -88,3 +85,12 @@ def shop_vehicle_set(text: str,qid: str):
         shop.setShopVehicle(vehicleid=arg[0],vehiclename=arg[1],cost=arg[2],buyback=arg[3])
     else:
         raise PermissionError
+
+def set_permission(msgchain:MessageChain,qid:str):
+    try:
+        if user.checkUser(qid):
+            user.setUserPermission(str(msgChain.get(At)[0].target), int(msgChain.get(Plain)[0].text))
+        else:
+            raise PermissionError
+    except IndexError:
+        raise IllegalCommandFormatError
