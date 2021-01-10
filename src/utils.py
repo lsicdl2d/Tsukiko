@@ -19,9 +19,9 @@ VehicleSearch = VehicleSearch()
 def register(text: str,qid: str):
     steamid = text.replace(register_command,'').replace(' ','')
     if steamid.isdigit() and len(steamid) == 17:
+        user.userInit(qid=qid,steamid=steamid)
         if str(admin_qq) == qid:
             user.setUserPermission(qid, 2)
-        user.userInit(qid=qid,steamid=steamid)
         user_balance = uconomy.getUserBalance(steamid)
         uconomy.setUserBalance(steamid,user_balance + Decimal(register_reward))
     else:

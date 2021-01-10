@@ -131,4 +131,4 @@ dmypy.json
 .botinit
 config/bot_config.py
 test.py
-/plugins/enabled_plugins/setu.py
+/plugins/enabled_plugins/
