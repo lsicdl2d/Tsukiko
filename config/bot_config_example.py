@@ -50,5 +50,6 @@ value_is_negative_msg = '参数不能为0！'
 permission_not_enough_msg = '权限不足！'
 recharge_success_msg = '充值成功！'
 set_permission_success_msg = '钦定成功！'
+cannot_transfer_to_self_msg = '不能转账给自己！'
 # 其他
 admin_qq = 123456789  # 服主QQ
