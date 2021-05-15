@@ -12,9 +12,8 @@ class Plugin:
             self.enabled_plugins.append(filename)
         print(f'共加载到{len(self.enabled_plugins)}个插件')
 
-    async def runPlugin(self,**kwarg):
+    async def runPlugin(self, **kwarg):
         for i in self.enabled_plugins:
             pluginName = os.path.splitext(i)[0]
-            plugin = __import__('plugins.enabled_plugins.'+pluginName, fromlist=[pluginName])
+            plugin = __import__('plugins.enabled_plugins.' + pluginName, fromlist=[pluginName])
             await plugin.run(kwarg)
-

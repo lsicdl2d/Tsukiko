@@ -33,7 +33,7 @@ get_shop_vehicle_info_command = '#载具查询'
 set_shop_item_info_command = '#商店物品修改'
 set_shop_vehicle_info_command = '#商店载具修改'
 set_permission_command = '#设置权限'
-parameter_separator = '|' # 命令分隔符
+parameter_separator = '|'  # 命令分隔符
 # 消息设置
 user_already_have_msg = '您已注册！'
 user_not_login_msg = '此用户未进入过游戏！'
@@ -51,4 +51,4 @@ permission_not_enough_msg = '权限不足！'
 recharge_success_msg = '充值成功！'
 set_permission_success_msg = '钦定成功！'
 # 其他
-admin_qq = 123456789 #服主QQ
+admin_qq = 123456789  # 服主QQ

@@ -1,6 +1,6 @@
 from config.bot_config import mysql_uconomy_table
-from .exception import UserAlreadyHaveError, UserNotLoginError, UserNotFoundError
 from .database import Database
+from .exception import UserAlreadyHaveError, UserNotLoginError, UserNotFoundError
 
 
 class User(Database):
@@ -11,7 +11,8 @@ class User(Database):
             return False
 
     def userDatabaseInit(self):
-        self.executeWithCommit("CREATE TABLE IF NOT EXISTS `userinfo` (`qid` CHAR(12) NOT NULL,`steamId` CHAR(17) NOT NULL,`permission` TINYINT NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+        self.executeWithCommit(
+            "CREATE TABLE IF NOT EXISTS `userinfo` (`qid` CHAR(12) NOT NULL,`steamId` CHAR(17) NOT NULL,`permission` TINYINT NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 
     def checkUserLogin(self, steamid: str) -> bool:
         if self.executeWithCount(f"SELECT * FROM {mysql_uconomy_table} WHERE steamId = '{steamid}';") != 0:
@@ -22,7 +23,8 @@ class User(Database):
     def userInit(self, qid: str, steamid: str):
         if not self.checkUser(qid):
             if self.checkUserLogin(steamid):
-                self.executeWithCommit(f"INSERT INTO userinfo (qid,steamId,permission) VALUE ('{qid}', '{steamid}', 0);")
+                self.executeWithCommit(
+                    f"INSERT INTO userinfo (qid,steamId,permission) VALUE ('{qid}', '{steamid}', 0);")
             else:
                 raise UserNotLoginError
         else:
@@ -36,7 +38,8 @@ class User(Database):
 
     def checkUserPermission(self, qid: str, permission: int):
         if self.checkUser(qid):
-            if int(self.executeWithReturn(f"SELECT permission FROM userinfo WHERE qid = '{qid}'")[0]['permission']) >= permission:
+            if int(self.executeWithReturn(f"SELECT permission FROM userinfo WHERE qid = '{qid}'")[0][
+                       'permission']) >= permission:
                 return True
             else:
                 return False
