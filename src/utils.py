@@ -108,7 +108,7 @@ def shop_vehicle_set(text: str, qid: str):
 
 def set_permission(msgchain: MessageChain, qid: str):
     try:
-        if user.checkUser(qid):
+        if user.checkUser(qid) and user.checkUserPermission(qid, 2):
             user.setUserPermission(str(msgchain.get(At)[0].target), int(msgchain.get(Plain)[0].text))
         else:
             raise PermissionError

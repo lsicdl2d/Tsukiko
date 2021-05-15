@@ -8,7 +8,7 @@ from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
 from graia.scheduler.timers import crontabify
 
-from config.bot_config import mirai_account, mirai_authKey, mirai_host
+from config.bot_config import mirai_account, mirai_authKey, mirai_host, admin_qq
 from config.bot_config import permission_not_enough_msg, illegal_steamid_msg, register_success_msg, \
     user_already_have_msg, user_already_signin_msg, user_not_found_msg, user_not_login_msg, illegal_command_format_msg, \
     balance_not_enough_msg, transfer_success_msg, item_not_found_msg, vehicle_not_found_msg, value_is_negative_msg, \
@@ -60,6 +60,7 @@ def check_init():
         print('检测到您第一次使用本插件，正在初始化...')
         user.userDatabaseInit()
         signin.signinDatabaseInit()
+        user.setUserPermission(admin_qq, 2)
         with open('.botinit', 'w') as i:
             i.write('init')
             i.close
@@ -125,7 +126,7 @@ async def messagehandler(app: GraiaMiraiApplication, group: Group, member: Membe
         except PermissionError:
             await fast_sender(group, member.id, permission_not_enough_msg)
         except CannotTransferToSelfError:
-            await  fast_sender(group, member.id, cannot_transfer_to_self_msg)
+            await fast_sender(group, member.id, cannot_transfer_to_self_msg)
 
 
 @scheduler.schedule(crontabify(signin_clear_time))
