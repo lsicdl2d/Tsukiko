@@ -1,4 +1,4 @@
-from config.bot_config import mysql_uconomy_table
+from config.bot_config import mysql_uconomy_table, admin_qq
 from .database import Database
 from .exception import UserAlreadyHaveError, UserNotLoginError, UserNotFoundError
 
@@ -25,6 +25,8 @@ class User(Database):
             if self.checkUserLogin(steamid):
                 self.executeWithCommit(
                     f"INSERT INTO userinfo (qid,steamId,permission) VALUE ('{qid}', '{steamid}', 0);")
+                if int(qid) == admin_qq:
+                    self.setUserPermission(qid, 2)
             else:
                 raise UserNotLoginError
         else:

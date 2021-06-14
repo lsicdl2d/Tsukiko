@@ -60,10 +60,8 @@ def check_init():
         print('检测到您第一次使用本插件，正在初始化...')
         user.userDatabaseInit()
         signin.signinDatabaseInit()
-        user.setUserPermission(admin_qq, 2)
         with open('.botinit', 'w') as i:
             i.write('init')
-            i.close
 
 
 async def fast_sender(group, qid, text):
