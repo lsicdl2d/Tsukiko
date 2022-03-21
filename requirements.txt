@@ -1,4 +1,4 @@
-graia-application-mirai
-graia-broadcast
-graia-scheduler
-pymysql
+graia-ariadne
+jinja2
+SQLAlchemy
+python-json-config
